@@ -5,9 +5,12 @@ import Manager from  "./artifacts/contracts/Manager.sol/Manager.json";
 
 function App() {
   const [name, setName] =useState("");
+  const [description, setDescription] =useState("");
   const [account, setAccount] =useState("");
   const [contract, setContract] =useState(null);
   const [tickets, setTickets] = useState([]);
+  const [isOpenTextarea, setIsOpenTextarea] = useState(false);
+  const [indexExpandedTextarea, setIndexExpandedTextarea] = useState(false);
 
   const getTickets = async () => {
     const res = await contract.getTickets();
@@ -17,6 +20,12 @@ function App() {
 
   const createTicket = async (_name) => {
     const transaction = await contract.createTicket(_name);
+    await transaction.wait();
+    getTickets();
+  }
+
+  const deleteTicket = async (_index) => {
+    const transaction = await contract.deleteTicket(_index);
     await transaction.wait();
     getTickets();
   }
@@ -34,6 +43,21 @@ function App() {
     getTickets();
   }
 
+  const updateDescriptionTicket = async (_index) => {
+    if (_index == indexExpandedTextarea) {
+      const transaction = await contract.updateTicketDescription(_index, description);
+      await transaction.wait();
+      setIsOpenTextarea(!isOpenTextarea);
+      getTickets();
+      setIndexExpandedTextarea('')
+    }
+  }
+
+  const expandTextarea = (index) => {
+    setIsOpenTextarea(true);
+    setIndexExpandedTextarea(index);
+  }
+
   const initConnection = async () => {
     if (typeof window.ethereum !== "undefined") {
       const accounts = await window.ethereum.request({
@@ -44,7 +68,7 @@ function App() {
       setAccount(accounts[0]);
       setContract(
           new ethers.Contract(
-"0xCba82c0Ce9dd02b3E67418e15d5f12A92121cA46",
+"0xa52DcED55a6430491679645aec0612EAe8c724b9",
               Manager.abi,
               newSigner
           )
@@ -57,7 +81,6 @@ function App() {
 
   useEffect( () => {
     initConnection();
-
       }, []);
 
   console.log(contract)
@@ -97,9 +120,21 @@ function App() {
               .filter((t) => t.item.status == 0)
               .map(((ticket, index) => {
             return (
-                <div key={index} className="main_ticket_card flex flex-col mb-2 p-5 rounded-lg relative bg-white">
-                  <p className="text-xs absolute -top-2 -right-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
-                  <p>{ticket.item.name}</p>
+                <div key={index} className="main_ticket_card flex flex-col mb-3 p-5 rounded-lg relative bg-white">
+                  <p className="text-xs absolute -top-2 -left-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
+                  <p className="text-xs absolute -top-2 -right-2 bg-white p-2 px-3 rounded-lg cursor-pointer" onClick={() => deleteTicket(ticket.id)}>x</p>
+                  <p className="text-lg font-bold mb-2">{ticket.item.name}</p>
+                  <div onBlur={ () => updateDescriptionTicket(ticket.id) } className="w-full h-5 cursor-pointer" onClick={() => expandTextarea(ticket.id)}>
+                    {isOpenTextarea  && ticket.id == indexExpandedTextarea &&
+                  <textarea
+                      autoFocus
+                      className="inputDescription px-2 py-0.5 bg-stone-100 h-12 rounded cursor-pointer"
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Ticket description"
+                  ></textarea>
+                  }
+                    {ticket.item.description && ticket.id !== indexExpandedTextarea && ticket.item.description}
+                  </div>
                   <div className="main_ticket_button_section flex self-end mt-4 flex-wrap">
                     <button style={{backgroundColor: "cyan"}} className="mr-0.5 px-2 py-0.5 bg-stone-100 rounded-full cursor-pointer"  onClick={() => updateTicketStatus(ticket.id, 1)}>
                       Busy
@@ -123,9 +158,21 @@ function App() {
               .filter((t) => t.item.status == 1)
               .map(((ticket, index) => {
                 return (
-                    <div key={index} className="main_ticket_card flex flex-col mb-2 p-5 rounded-lg relative bg-white">
-                      <p className="text-xs absolute -top-2 -right-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
-                      <p>{ticket.item.name}</p>
+                    <div key={index} className="main_ticket_card flex flex-col mb-3 p-5 rounded-lg relative bg-white">
+                      <p className="text-xs absolute -top-2 -left-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
+                      <p className="text-xs absolute -top-2 -right-2 bg-white p-2 px-3 rounded-lg cursor-pointer" onClick={() => deleteTicket(ticket.id)}>x</p>
+                      <p className="text-lg font-bold mb-2">{ticket.item.name}</p>
+                      <div onBlur={ () => updateDescriptionTicket(ticket.id) } className="w-full h-5 cursor-pointer" onClick={() => expandTextarea(ticket.id)}>
+                        {isOpenTextarea && ticket.id == indexExpandedTextarea &&
+                        <textarea
+                            autoFocus
+                            className="inputDescription px-2 py-0.5 bg-stone-100 h-12 rounded cursor-pointer"
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Ticket description"
+                        ></textarea>
+                        }
+                        {ticket.item.description && ticket.id !== indexExpandedTextarea && ticket.item.description}
+                      </div>
                       <div className="main_ticket_button_section flex self-end mt-4 flex-wrap">
                         <button style={{backgroundColor: "lightPink"}} className="mr-0.5 px-2 py-0.5 bg-stone-100 rounded-full cursor-pointer" onClick={() => updateTicketStatus(ticket.id, 0)}>
                           ToDo
@@ -149,9 +196,21 @@ function App() {
               .filter((t) => t.item.status == 2)
               .map(((ticket, index) => {
                 return (
-                    <div key={index} className="main_ticket_card flex flex-col mb-2 p-5 rounded-lg relative bg-white">
-                      <p className="text-xs absolute -top-2 -right-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
-                      <p>{ticket.item.name}</p>
+                    <div key={index} className="main_ticket_card flex flex-col mb-3 p-5 rounded-lg relative bg-white">
+                      <p className="text-xs absolute -top-2 -left-2 bg-white p-2 rounded-lg">#{ticket.id}</p>
+                      <p className="text-xs absolute -top-2 -right-2 bg-white p-2 px-3 rounded-lg cursor-pointer" onClick={() => deleteTicket(ticket.id)}>x</p>
+                      <p className="text-lg font-bold mb-2">{ticket.item.name}</p>
+                      <div onBlur={ () => updateDescriptionTicket(ticket.id) } className="w-full h-5 cursor-pointer" onClick={() => expandTextarea(ticket.id)}>
+                        {isOpenTextarea && ticket.id == indexExpandedTextarea &&
+                        <textarea
+                            autoFocus
+                            className="inputDescription px-2 py-0.5 bg-stone-100 h-12 rounded cursor-pointer"
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Ticket description"
+                        ></textarea>
+                        }
+                        {ticket.item.description && ticket.id !== indexExpandedTextarea && ticket.item.description}
+                      </div>
                       <div className="main_ticket_button_section flex self-end mt-4 flex-wrap">
                         <button style={{backgroundColor: "lightPink"}} className="mr-0.5 px-2 py-0.5 bg-stone-100 rounded-full cursor-pointer" onClick={() => updateTicketStatus(ticket.id, 0)}>
                           ToDo
