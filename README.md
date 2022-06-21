@@ -8,6 +8,9 @@ Functionality:
     add new Todo
     change board for todo - busy or done
     rename Todo
+    delete Todo
+    add description for Todo
+    modify description by blur
 
 Technologies and Tools
 
