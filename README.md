@@ -1,7 +1,7 @@
 # Small TODO Dapp
 
 This application demonstrate smartcontract for blockchain and web application on React for front end.
-This Dapp located in rinkeby test network, you need only has wallet on metamask with some gas.
+This Dapp located in rinkeby test network, you need only have wallet on metamask with some gas.
 Try it by link https://skiv1986.github.io/todo-dapp/
 
 Functionality:
