@@ -25,9 +25,9 @@ module.exports = {
     hardhat: {
       chainId: 1337,
     },
-    rinkeby: {
-      url: "https://eth-rinkeby.alchemyapi.io/v2/xD4qMo7gtckSzNwWfJMaaL4dCeg068N5",
-      accounts: ["//your private key"]
+    goerli: {
+      url: "https://eth-goerli.alchemyapi.io/v2/xD4qMo7gtckSzNwWfJMaaL4dCeg068N5",
+      accounts: ["4a9a5668eeaa66fd7ded8769293eff3ff7cf6e5a6d4129273dea7a4724e33cbf"]
     },
   },
 };
